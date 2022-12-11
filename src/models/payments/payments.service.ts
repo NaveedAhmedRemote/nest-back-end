@@ -14,18 +14,20 @@ export class PaymentsService {
   ) {}
   create(createPaymentDto: CreatePaymentDto) {
     return this.repository.save(createPaymentDto);
-    return 'This action adds a new payment';
   }
 
-  findAll() {
-    return this.repository.find();
+  findAll(relation) {
+    return this.repository.find(
+      {
+        relations: { warha: true },
+      }
+    );
   }
 
   findOne(id: number) {
     // return this.repository.findOneBy(id);
   }
   async findOnebyMonth(warhaId) {
-    console.log('WarhaId In PaymentsService', typeof warhaId, warhaId);
     const wa = await this.repository.findOne({
       where: { warha: warhaId },
       relations: { warha: true },

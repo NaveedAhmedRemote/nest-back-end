@@ -11,7 +11,7 @@ export class WarhaService {
   constructor(
     @InjectRepository(Warha)
     private repository: Repository<Warha>,
-  ) {}
+  ) { }
 
   create(createWarhaDto: CreateWarhaDto) {
     return this.repository.save(createWarhaDto);
@@ -21,15 +21,22 @@ export class WarhaService {
     return this.repository.find();
   }
 
+  // async findOne(id: number) {
+  //   const wahraByPayment = await this.repository
+  //     .createQueryBuilder('warha')
+  //     .leftJoinAndSelect('warha.payments', 'payments')
+  //     .where('payments.status = :status', { status: 'unpaid' })
+  //     .andWhere('warha.id = :id', { id: id })
+  //     .orderBy('payments.createdAt', 'ASC')
+  //     .getOne();
+  //   console.log('Warha', wahraByPayment);
+  //   return wahraByPayment;
+  // }
   async findOne(id: number) {
-    const wahraByPayment = await this.repository
-      .createQueryBuilder('warha')
-      .leftJoinAndSelect('warha.payments', 'payments')
-      .where('payments.status = :status', { status: 'unpaid' })
-      .andWhere('warha.id = :id', { id: id })
-      .orderBy('payments.createdAt', 'ASC')
-      .getOne();
-    console.log('Warha', wahraByPayment);
+    const wahraByPayment = await this.repository.findOne({
+      where: { id: id },
+      relations: { payments: true }
+    })
     return wahraByPayment;
   }
 

@@ -20,9 +20,9 @@ export class PaymentsController {
     return this.paymentsService.create(createPaymentDto);
   }
 
-  @Get('/payments')
-  findAll() {
-    return this.paymentsService.findAll();
+  @Get('')
+  findAll(@Param('relation') relation: string) {
+    return this.paymentsService.findAll(relation);
   }
 
   @Get('/:id')
