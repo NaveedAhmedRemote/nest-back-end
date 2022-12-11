@@ -12,8 +12,14 @@ export class Order extends BaseEntity {
   @Column({ default: 0 })
   noOfBlock: number;
 
-  @Column()
-  receipt: boolean;
+  @Column({ default: '' })
+  receipt: string;
+
+  @Column({ default: 0 })
+  chora: number;
+
+  @Column({ default: 0 })
+  sabut: number;
 
   // Order has One Warha
   @ManyToOne(() => Warha, (warha) => warha.order)

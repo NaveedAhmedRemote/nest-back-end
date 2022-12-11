@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { WarhaService } from './warha.service';
 import { CreateWarhaDto } from './dto/create-warha.dto';
@@ -30,7 +31,7 @@ export class WarhaController {
     return this.warhaService.findOne(+id);
   }
 
-  @Patch('/update-warha/:id')
+  @Put('/update-warha/:id')
   update(@Param('id') id: string, @Body() updateWarhaDto: UpdateWarhaDto) {
     return this.warhaService.update(+id, updateWarhaDto);
   }
