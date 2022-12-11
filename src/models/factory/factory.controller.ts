@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { FactoryService } from './factory.service';
 import { CreateFactoryDto } from './dto/create-factory.dto';
@@ -30,7 +31,7 @@ export class FactoryController {
     return this.factoryService.findOne(+id);
   }
 
-  @Patch('/update-factory/:id')
+  @Put('/update-factory/:id')
   update(@Param('id') id: string, @Body() updateFactoryDto: UpdateFactoryDto) {
     return this.factoryService.update(+id, updateFactoryDto);
   }

@@ -7,7 +7,7 @@ import { UpdateDriverDto } from './dto/update-driver.dto';
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 
-  @Post('/add-new-driver')
+  @Post('/add-driver')
   create(@Body() createDriverDto: CreateDriverDto) {
     return this.driverService.create(createDriverDto);
   }
