@@ -9,5 +9,8 @@ export class Launch extends BaseEntity {
   email: string;
 
   @Column({ default: '' })
+  number: string;
+
+  @Column({ default: '' })
   ratePerBlock: string;
 }

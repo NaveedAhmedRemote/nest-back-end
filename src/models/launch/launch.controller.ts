@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { LaunchService } from './launch.service';
 import { CreateLaunchDto } from './dto/create-launch.dto';
@@ -30,7 +31,7 @@ export class LaunchController {
     return this.launchService.findOne(+id);
   }
 
-  @Patch('update-launch/:id')
+  @Put('update-launch/:id')
   update(@Param('id') id: string, @Body() updateLaunchDto: UpdateLaunchDto) {
     return this.launchService.update(+id, updateLaunchDto);
   }
