@@ -14,7 +14,7 @@ export class Payment extends BaseEntity {
   @Column({ default: '' })
   totalBlock: string;
 
-  @Column({ default: '' })
+  @Column({ default: '0' })
   previousAmount: string;
 
   @Column({ default: '' })

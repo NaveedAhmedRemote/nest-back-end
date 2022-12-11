@@ -10,7 +10,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private repository: Repository<Order>,
-  ) {}
+  ) { }
   create(createOrderDto) {
     return this.repository.save(createOrderDto);
   }
@@ -22,6 +22,22 @@ export class OrdersService {
       .where('orders."createdAt"::date >= current_date')
       .andWhere('"status" = :status', {
         status: 'received',
+      })
+      .getMany();
+    return factories;
+  }
+
+  async findAllOrdersOfWarha(id) {
+// Need To Optimie
+    const factories = await this.repository
+      .createQueryBuilder('orders')
+      .leftJoinAndSelect('orders.warha', 'warha')
+      .where('orders."createdAt"::date >= current_date')
+      .andWhere('"warhaId" = :warhaId', {
+        warhaId: id,
+      })
+      .andWhere('"status" = :status', {
+        status: 'delivered',
       })
       .getMany();
     return factories;
@@ -82,6 +98,7 @@ export class OrdersService {
       .groupBy('"warhaId"')
       .getRawMany();
     // .getSql();
+    console.log("A", test1)
     return test1;
   }
 }

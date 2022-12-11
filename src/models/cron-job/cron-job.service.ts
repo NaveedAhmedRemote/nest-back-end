@@ -12,27 +12,22 @@ export class CronJobService {
     private ordersService: OrdersService,
     private warhaService: WarhaService,
     private paymentsService: PaymentsService,
-  ) {}
+  ) { }
   @Cron('0 0 1 * *') //Every Month
-  // @Cron('*/5 * * * * *') //Every Five Sec
+  // @Cron('*/10 * * * * *') //Every Five Sec
   async generateMonthlyBillForWarha() {
     let generateOnce = true;
     if (generateOnce) {
-      generateOnce = false;
       const calculateNoOfBlockEveryWarha: any =
         await this.ordersService.generateMonthlyBillForWarhas();
-
       await forEach(
         calculateNoOfBlockEveryWarha,
         async (calculateNoOfBlockEveryWarha, index) => {
           const wahraWithPreviousPayment: any = await this.warhaService.findOne(
             calculateNoOfBlockEveryWarha?.warhaId,
           );
-
           const totalBill =
-            calculateNoOfBlockEveryWarha?.totalBlock *
-            parseInt(wahraWithPreviousPayment?.ratePerBlock);
-
+            calculateNoOfBlockEveryWarha?.totalBlock * (wahraWithPreviousPayment?.ratePerBlock);
           await this.paymentsService.create({
             amount: totalBill,
             status: PAYMENT_STATUS.UN_PAID,
@@ -43,7 +38,6 @@ export class CronJobService {
           });
         },
       );
-      console.log('All Bill Generated');
     }
   }
 }

@@ -30,7 +30,11 @@ export class OrdersController {
   findAll() {
     return this.ordersService.findAll();
   }
-
+  // 
+  @Get('/warha-orders/:id')
+  findAllOrdersOfWarha(@Param('id') id: string) {
+    return this.ordersService.findAllOrdersOfWarha(id);
+  }
   @Get('/:id')
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(+id);
