@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import * as moment from 'moment';
+import { getFirstAndLastDayOfMonth } from 'src/utils/datesOfCurrentMonth';
 
 @Controller('payments')
 export class PaymentsController {
@@ -43,8 +46,19 @@ export class PaymentsController {
   @Get('PaymentsByWarhaId')
   generateMonthlyBillForWarhas() {}
 
-  @Get('currentMonth')
-  paymentOfCurrentMonth(warhaId) {
-    return this.paymentsService.paymentsOfCurrentMonth(warhaId);
+  @Get('currentMonth-wahra')
+  paymentOfCurrentMonthByWarhaId(warhaId) {
+    return this.paymentsService.paymentsOfCurrentMonthByWarhaId(warhaId);
+  }
+
+  @Get('current-month/:date')
+  async paymentOfCurrentMonth(@Param('date') date: string) {
+    const toDate = new Date(date);
+    const dateRange = await getFirstAndLastDayOfMonth(toDate);
+    console.log('Datee', dateRange);
+    return this.paymentsService.paymentsOfCurrentMonth(
+      dateRange.start,
+      dateRange.end,
+    );
   }
 }

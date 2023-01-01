@@ -10,7 +10,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private repository: Repository<Order>,
-  ) { }
+  ) {}
   create(createOrderDto) {
     return this.repository.save(createOrderDto);
   }
@@ -28,11 +28,20 @@ export class OrdersService {
   }
 
   async findAllOrdersOfWarha(id) {
-// Need To Optimie
-    const factories = await this.repository
+    const date = new Date();
+    console.log('Start', moment(date).startOf('month'));
+    console.log('endOf', moment(date).endOf('month'));
+    // Need To Optimie
+    const wholeMonthOrder = await this.repository
       .createQueryBuilder('orders')
       .leftJoinAndSelect('orders.warha', 'warha')
-      .where('orders."createdAt"::date >= current_date')
+      // .where('orders."createdAt"::date >= current_date')
+      .where('orders."createdAt" >= :startDate', {
+        startDate: moment(date).startOf('month'),
+      })
+      .andWhere('orders."createdAt" <= :endDate', {
+        endDate: moment(date).endOf('month'),
+      })
       .andWhere('"warhaId" = :warhaId', {
         warhaId: id,
       })
@@ -40,7 +49,7 @@ export class OrdersService {
         status: 'delivered',
       })
       .getMany();
-    return factories;
+    return wholeMonthOrder;
   }
   async findAll() {
     const company = await this.repository
@@ -82,7 +91,7 @@ export class OrdersService {
   }
   async generateMonthlyBillForWarhas() {
     const date = new Date();
-    const test1 = await this.repository
+    const warha = await this.repository
       .createQueryBuilder('order')
       .select('"warhaId"')
       .addSelect('SUM("noOfBlock")', 'totalBlock')
@@ -98,7 +107,7 @@ export class OrdersService {
       .groupBy('"warhaId"')
       .getRawMany();
     // .getSql();
-    console.log("A", test1)
-    return test1;
+    console.log('A', warha);
+    return warha;
   }
 }
