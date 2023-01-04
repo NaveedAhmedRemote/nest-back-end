@@ -13,6 +13,7 @@ export class CronJobService {
     private warhaService: WarhaService,
     private paymentsService: PaymentsService,
   ) {}
+  
   @Cron('0 0 1 * *') //Every Month
   // @Cron('*/10 * * * * *') //Every Five Sec
   async generateMonthlyBillForWarha() {
