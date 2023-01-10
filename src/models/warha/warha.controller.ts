@@ -40,4 +40,9 @@ export class WarhaController {
   remove(@Param('id') id: string) {
     return this.warhaService.remove(+id);
   }
+
+  @Get('/test')
+  test() {
+    return 'Working'
+  }
 }
