@@ -16,6 +16,8 @@ import { WarhaModule } from './models/warha/warha.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronJobService } from './models/cron-job/cron-job.service';
 import { ImagesModule } from './models/images/images.module';
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 @Module({
   imports: [
@@ -23,17 +25,21 @@ import { ImagesModule } from './models/images/images.module';
     AuthModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: process.env.ENV_Host,
       port: 5432,
-      username: 'postgres',
-      password: '123',
-      database: 'nestAuth',
+      username: process.env.ENV_User,
+      password: process.env.ENV_Password,
+      database: process.env.ENV_DbName,
       // entities: [__dirname + '/**/*.entity{.ts,.js}'],
       // entities: ['./modules/**/*.entity{.ts}'],
       // entities: [__dirname + '/src/modules/**/entities/*.entity.ts'],
       // entities: [User],
-      synchronize: true,
+      // synchronize: true,
       autoLoadEntities: true,
+      ssl: {
+        rejectUnauthorized: false,
+      }
+
     }),
     // PostgreSqlConfigModule,
     ImagesModule,
@@ -52,4 +58,4 @@ import { ImagesModule } from './models/images/images.module';
   // providers: [AppService],
   providers: [CronJobService],
 })
-export class AppModule {}
+export class AppModule { }
