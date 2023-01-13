@@ -1,10 +1,10 @@
 import { BaseEntity } from 'src/models/base.entity';
+import { PAYMENT_STATUS } from 'src/models/payments/enums/payment-status.enums';
 import { Warha } from 'src/models/warha/entities/warha.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
-import { PAYMENT_STATUS } from '../enums/payment-status.enums';
+import { Column, CreateDateColumn, Entity, ManyToOne } from 'typeorm';
 
-@Entity({ name: 'payments' })
-export class Payment extends BaseEntity {
+@Entity({ name: 'monthlyBill' })
+export class MonthlyBill extends BaseEntity {
   @Column()
   status: PAYMENT_STATUS.DUE;
 
@@ -23,16 +23,14 @@ export class Payment extends BaseEntity {
   @Column()
   receipt: boolean;
 
-  @Column({default:false})
-  isCheck: boolean;
-
-  @Column({default:false})
-  isCash: boolean;
-
   // warha has Many Payments
   @ManyToOne(() => Warha, (warha) => warha.payments)
   warha: Warha;
 
-  @Column({ nullable: true })
+
+  @CreateDateColumn({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   billMonth: Date;
 }

@@ -17,8 +17,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CronJobService } from './models/cron-job/cron-job.service';
 import { ImagesModule } from './models/images/images.module';
 import * as dotenv from 'dotenv'
+import { MonthlyBillModule } from './models/monthly-bill/monthly-bill.module';
 dotenv.config()
-
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -34,7 +34,7 @@ dotenv.config()
       // entities: ['./modules/**/*.entity{.ts}'],
       // entities: [__dirname + '/src/modules/**/entities/*.entity.ts'],
       // entities: [User],
-      // synchronize: true,
+      synchronize: true,
       autoLoadEntities: true,
       ssl: {
         rejectUnauthorized: false,
@@ -42,6 +42,7 @@ dotenv.config()
 
     }),
     // PostgreSqlConfigModule,
+    MonthlyBillModule,
     ImagesModule,
     WarhaModule,
     TruckModule,
