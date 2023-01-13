@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import * as moment from 'moment';
 import { forEach } from 'src/utils/foreach';
+import { MonthlyBillService } from '../monthly-bill/monthly-bill.service';
 import { OrdersService } from '../orders/orders.service';
 import { PAYMENT_STATUS } from '../payments/enums/payment-status.enums';
 import { PaymentsService } from '../payments/payments.service';
@@ -11,7 +12,7 @@ export class CronJobService {
   constructor(
     private ordersService: OrdersService,
     private warhaService: WarhaService,
-    private paymentsService: PaymentsService,
+    private monthlyBillService: MonthlyBillService,
   ) {}
   
   @Cron('0 0 1 * *') //Every Month
@@ -36,7 +37,7 @@ export class CronJobService {
           const wahraWithPreviousPayment: any = await this.warhaService.findOne(
             calculateNoOfBlockEveryWarha?.warhaId,
           );
-          // const t = await this.paymentsService.findOnebyMonth(
+          // const t = await this.monthlyBillService.findOnebyMonth(
           //   calculateNoOfBlockEveryWarha?.warhaId,
           // );
           // let paymentStartOfMonth = moment(t?.billMonth)
@@ -69,13 +70,14 @@ export class CronJobService {
           //   console.log('Bill Already Generated For ', t?.warha?.name);
           // }
           //  else {
-          await this.paymentsService.create({
+            const dateFromEnd = moment(todayDate).subtract(1,'months').endOf('month').format('MM/DD/YYYY');
+          await this.monthlyBillService.create({
             amount: totalBill,
             status: PAYMENT_STATUS.UN_PAID,
             totalBlock: calculateNoOfBlockEveryWarha?.totalBlock,
             warha: calculateNoOfBlockEveryWarha?.warhaId,
             receipt: false,
-            billMonth: new Date(),
+            billMonth: new Date(dateFromEnd),
           });
           // }
         },
