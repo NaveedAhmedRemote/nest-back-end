@@ -1,4 +1,5 @@
 import { BaseEntity } from 'src/models/base.entity';
+import { MonthlyBill } from 'src/models/monthly-bill/entities/monthly-bill.entity';
 import { Order } from 'src/models/orders/entities/order.entity';
 import { Payment } from 'src/models/payments/entities/payment.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
@@ -25,6 +26,10 @@ export class Warha extends BaseEntity {
   // Warha Has Many Payments
   @OneToMany(() => Payment, (payment) => payment.warha)
   payments: Payment[];
+
+   // Warha Has Many MonthlyBill
+   @OneToMany(() => MonthlyBill, (monthlyBill) => monthlyBill.warhaBill)
+   monthlyBill: MonthlyBill[];
 
   
 }

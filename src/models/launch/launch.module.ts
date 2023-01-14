@@ -8,6 +8,7 @@ import { Launch } from './entities/launch.entity';
   imports: [TypeOrmModule.forFeature([Launch])],
 
   controllers: [LaunchController],
-  providers: [LaunchService]
+  providers: [LaunchService],
+  exports:[LaunchService]
 })
 export class LaunchModule {}
