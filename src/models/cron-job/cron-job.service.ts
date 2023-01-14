@@ -2,33 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import * as moment from 'moment';
 import { forEach } from 'src/utils/foreach';
+import { FactoryService } from '../factory/factory.service';
+import { LaunchService } from '../launch/launch.service';
 import { MonthlyBillService } from '../monthly-bill/monthly-bill.service';
 import { OrdersService } from '../orders/orders.service';
 import { PAYMENT_STATUS } from '../payments/enums/payment-status.enums';
-import { PaymentsService } from '../payments/payments.service';
 import { WarhaService } from '../warha/warha.service';
 @Injectable()
 export class CronJobService {
   constructor(
     private ordersService: OrdersService,
     private warhaService: WarhaService,
+    private factoryService: FactoryService,
+    private launchService: LaunchService,
     private monthlyBillService: MonthlyBillService,
-  ) {}
-  
+  ) { }
+
   @Cron('0 0 1 * *') //Every Month
   // @Cron('*/10 * * * * *') //Every Five Sec
   async generateMonthlyBillForWarha() {
     const todayDate = new Date();
-    const startOfMonthCurrentDate = moment(todayDate)
-      .startOf('month')
-      .format('MM/DD/YYYY');
-    const endOfMonthCurrentDate = moment(todayDate)
-      .endOf('month')
-      .format('MM/DD/YYYY');
-
     let generateOnce = true;
     if (generateOnce) {
-      console.log('START');
       const calculateNoOfBlockEveryWarha: any =
         await this.ordersService.generateMonthlyBillForWarhas();
       await forEach(
@@ -37,49 +32,91 @@ export class CronJobService {
           const wahraWithPreviousPayment: any = await this.warhaService.findOne(
             calculateNoOfBlockEveryWarha?.warhaId,
           );
-          // const t = await this.monthlyBillService.findOnebyMonth(
-          //   calculateNoOfBlockEveryWarha?.warhaId,
-          // );
-          // let paymentStartOfMonth = moment(t?.billMonth)
-          //   .startOf('month')
-          //   .format('MM/DD/YYYY');
-
-          // let paymentEndOfMonth = moment(t?.billMonth)
-          //   .endOf('month')
-          //   .format('MM/DD/YYYY');
-
-          // console.log('paymentStartOfMonth', paymentStartOfMonth);
-          // console.log('paymentEndOfMonth', paymentEndOfMonth);
-
-          // let startOfMonth = moment(t?.warha?.createdAt)
-          //   .startOf('month')
-          //   .format('MM/DD/YYYY');
-
-          // let endOfMonth = moment(t?.warha?.createdAt)
-          //   .endOf('month')
-          //   .format('MM/DD/YYYY');
 
           const totalBill =
             calculateNoOfBlockEveryWarha?.totalBlock *
             wahraWithPreviousPayment?.ratePerBlock;
 
-          // if (
-          //   endOfMonth == endOfMonthCurrentDate &&
-          //   startOfMonthCurrentDate == startOfMonth
-          // ) {
-          //   console.log('Bill Already Generated For ', t?.warha?.name);
-          // }
-          //  else {
-            const dateFromEnd = moment(todayDate).subtract(1,'months').endOf('month').format('MM/DD/YYYY');
-          await this.monthlyBillService.create({
-            amount: totalBill,
-            status: PAYMENT_STATUS.UN_PAID,
-            totalBlock: calculateNoOfBlockEveryWarha?.totalBlock,
-            warha: calculateNoOfBlockEveryWarha?.warhaId,
-            receipt: false,
-            billMonth: new Date(dateFromEnd),
-          });
-          // }
+          const dateFromEnd = moment(todayDate).subtract(1, 'months').endOf('month').format('MM/DD/YYYY');
+          if (calculateNoOfBlockEveryWarha?.totalBlock != 520) {
+            await this.monthlyBillService.create({
+              amount: totalBill,
+              status: PAYMENT_STATUS.UN_PAID,
+              totalBlock: calculateNoOfBlockEveryWarha?.totalBlock,
+              warha: calculateNoOfBlockEveryWarha?.warhaId,
+              receipt: false,
+              billMonth: new Date(dateFromEnd),
+            });
+          }
+        },
+      );
+      this.generateMonthlyBillForFactories()
+    }
+  }
+
+  async generateMonthlyBillForFactories() {
+    const todayDate = new Date();
+    let generateOnce = true;
+    if (generateOnce) {
+      const calculateNoOfBlockEveryFactory: any =
+        await this.ordersService.generateMonthlyBillForFactories();
+
+      await forEach(
+        calculateNoOfBlockEveryFactory,
+        async (calculateNoOfBlockEveryFactory, index) => {
+          const wahraWithPreviousPayment: any = await this.factoryService.findOne(
+            calculateNoOfBlockEveryFactory?.factoryId,
+          );
+
+          const totalBill =
+            calculateNoOfBlockEveryFactory?.totalBlock *
+            wahraWithPreviousPayment?.ratePerBlock;
+
+          const dateFromEnd = moment(todayDate).subtract(1, 'months').endOf('month').format('MM/DD/YYYY');
+          if (calculateNoOfBlockEveryFactory?.totalBlock != 520) {
+            await this.monthlyBillService.create({
+              amount: totalBill,
+              status: PAYMENT_STATUS.UN_PAID,
+              totalBlock: calculateNoOfBlockEveryFactory?.totalBlock,
+              factory: calculateNoOfBlockEveryFactory?.factoryId,
+              receipt: false,
+              billMonth: new Date(dateFromEnd),
+            });
+          }
+        },
+      );
+      this.generateMonthlyBillForLaunches()
+    }
+  }
+  async generateMonthlyBillForLaunches() {
+    const todayDate = new Date();
+    let generateOnce = true;
+    if (generateOnce) {
+      const calculateNoOfBlockEveryLaunch: any =
+        await this.ordersService.generateMonthlyBillForLaunches();
+      await forEach(
+        calculateNoOfBlockEveryLaunch,
+        async (calculateNoOfBlockEveryLaunch, index) => {
+          const launchPreviousPayment: any = await this.launchService.findOne(
+            calculateNoOfBlockEveryLaunch?.launchId,
+          );
+
+          const totalBill =
+            calculateNoOfBlockEveryLaunch?.totalBlock *
+            launchPreviousPayment?.ratePerBlock;
+
+          const dateFromEnd = moment(todayDate).subtract(1, 'months').endOf('month').format('MM/DD/YYYY');
+          if (calculateNoOfBlockEveryLaunch?.totalBlock != 520) {
+            await this.monthlyBillService.create({
+              amount: totalBill,
+              status: PAYMENT_STATUS.UN_PAID,
+              totalBlock: calculateNoOfBlockEveryLaunch?.totalBlock,
+              launch: calculateNoOfBlockEveryLaunch?.launchId,
+              receipt: false,
+              billMonth: new Date(dateFromEnd),
+            });
+          }
+
         },
       );
     }

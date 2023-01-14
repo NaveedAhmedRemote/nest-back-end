@@ -8,6 +8,7 @@ import { Factory } from './entities/factory.entity';
   imports: [TypeOrmModule.forFeature([Factory])],
 
   controllers: [FactoryController],
-  providers: [FactoryService]
+  providers: [FactoryService],
+  exports:[FactoryService]
 })
 export class FactoryModule {}

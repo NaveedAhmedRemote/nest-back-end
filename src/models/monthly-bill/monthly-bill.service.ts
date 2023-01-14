@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { getFirstAndLastDayOfMonth } from 'src/utils/datesOfCurrentMonth';
-import { Repository, Between } from 'typeorm';
-import { CreatePaymentDto } from '../payments/dto/create-payment.dto';
+import { Between, Repository } from 'typeorm';
 import { UpdatePaymentDto } from '../payments/dto/update-payment.dto';
 import { CreateMonthlyBillDto } from './dto/create-monthly-bill.dto';
-import { UpdateMonthlyBillDto } from './dto/update-monthly-bill.dto';
 import { MonthlyBill } from './entities/monthly-bill.entity';
 
 @Injectable()
@@ -14,21 +11,66 @@ export class MonthlyBillService {
   constructor(
     @InjectRepository(MonthlyBill)
     private repository: Repository<MonthlyBill>,
-  ) {}
+  ) { }
   create(createMonthlyBillDto: CreateMonthlyBillDto) {
     return this.repository.save(createMonthlyBillDto);
   }
- 
-  async findAll(relation) {
-    const todayDate = new Date();
-    const dateFromStart = moment(todayDate).subtract(1,'months').startOf('month').format('MM/DD/YYYY');
-    const dateFromEnd = moment(todayDate).subtract(1,'months').endOf('month').format('MM/DD/YYYY');
-    
+
+  // async findAll(relations: {} = { relation: true }) {
+  // async findAll(relations) {
+  //   console.log("___________________", relations)
+
+  //   const wholeMonthOrder = await this.repository
+  //     .createQueryBuilder('MonthlyBill')
+  //     .innerJoinAndSelect(`MonthlyBill.${relations}`, `${relations}`)
+
+  //     .where('MonthlyBill."billMonth" >= :startDate', {
+  //       startDate: dateFromStart,
+  //     })
+  //     .andWhere('MonthlyBill."billMonth" <= :endDate', {
+  //       endDate: dateFromEnd,
+  //     })
+  //     .getMany();
+  //   console.log("::::", wholeMonthOrder)
+  //   return wholeMonthOrder;
+
+
+  //   return this.repository.find({
+  //     relations: relations,
+  //     where: {
+  //       billMonth: Between(new Date(dateFromStart), new Date(dateFromEnd)),
+  //     },
+  //   });
+  // }
+  findAllWarha(dateFromStart, dateFromEnd) {
     return this.repository.find({
       relations: { warha: true },
-      where: {
+      where: [{
         billMonth: Between(new Date(dateFromStart), new Date(dateFromEnd)),
-      },
+      }, {
+        warha: !null
+      }],
+    });
+  }
+
+  findAllLaunchMonthlyBill(dateFromStart, dateFromEnd) {
+    return this.repository.find({
+      relations: { launch: true },
+      where: [{
+        billMonth: Between(new Date(dateFromStart), new Date(dateFromEnd)),
+      }, {
+        launch: !null
+      }],
+    });
+  }
+  findAllFactoryMonthlyBill(dateFromStart, dateFromEnd) {
+    return this.repository.find({
+      relations: { factory: true },
+      where: [{
+        billMonth: Between(new Date(dateFromStart), new Date(dateFromEnd)),
+      }, {
+        factory: !null
+      }],
     });
   }
 
@@ -60,19 +102,19 @@ export class MonthlyBillService {
     });
   }
 
-  async paymentsOfCurrentMonth(startDate, endDate) {
+  async paymentsOfCurrentMonth(startDate, endDate,relation) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const payments = await this.repository
-      .createQueryBuilder('payments')
-      .leftJoinAndSelect('payments.warha', 'warha')
-      .where('payments."createdAt" >= :start', {
+    const monthlybill = await this.repository
+      .createQueryBuilder('monthlybill')
+      .innerJoinAndSelect(`monthlybill.${relation}`, `${relation}`)
+      .where('monthlybill."billMonth" >= :start', {
         start: moment(start).startOf('month'),
       })
-      .andWhere('payments."createdAt" <= :end', {
+      .andWhere('monthlybill."billMonth" <= :end', {
         end: moment(end).endOf('month'),
       })
       .getMany();
-    return payments;
+    return monthlybill;
   }
 }
