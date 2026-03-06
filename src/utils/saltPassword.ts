@@ -5,3 +5,4 @@ export async function encryptPassword(password): Promise<string> {
 
   return hash;
 }
+export const accessToken = "ABF@#$@ANFASI@413Aef"
